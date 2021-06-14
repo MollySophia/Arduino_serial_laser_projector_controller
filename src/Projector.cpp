@@ -24,80 +24,16 @@ IRAM_ATTR void keyISR() {
   keyState = 1;
 }
 
-void powerOnOff() {
-  unsigned char tmp[8] = {0xff, 0x07, 0x99, 0x00, 0x00, 0x00, 0x00, 0xa0};
-  Serial.write(tmp, 8);
-  delay(100);
-}
-
-void flipScreen(char value) { //0:both 1:vertical 2:horizontal 3:normal
-  if(value > 4 || value < 0) return;
-  unsigned char tmp[8] = {0xff, 0x07, 0x37, 0x00, 0x00, 0x00, 0x00, 0x3e};
-  tmp[3] += value;
-  tmp[7] += value;
-  Serial.write(tmp, 8);
-  delay(100);
-}
-
-void brightness(char value) { //-31 ~ 10
-  if(value > 10 || value < -31) return;
-  unsigned char tmp[8] = {0xff, 0x07, 0x29, 0x00, 0x00, 0x00, 0x00, 0x30};
-  tmp[3] += value;
-  tmp[7] += value;
-  Serial.write(tmp, 8);
-  delay(100);
-}
-
-void contrast(char value) {
-  if(value > 15 || value < -15) return;
-  unsigned char tmp[8] = {0xff, 0x07, 0x2b, 0x00, 0x00, 0x00, 0x00, 0x32};
-  tmp[3] += value;
-  tmp[7] += value;
-  Serial.write(tmp, 8);
-  delay(100);
-}
-
-void keystoneCorrectionHorizontal(char value) {
-  if(value > 30 || value < -30) return;
-  unsigned char tmp[8] = {0xff, 0x07, 0x33, 0x00, 0x00, 0x00, 0x00, 0x3a};
-  tmp[3] += value;
-  tmp[7] += value;
-  Serial.write(tmp, 8);
-  delay(100);
-}
-
-void keystoneCorrectionVertical(char value) {
-  if(value > 30 || value < -15) return;
-  unsigned char tmp[8] = {0xff, 0x07, 0x35, 0x00, 0x00, 0x00, 0x00, 0x3c};
-  tmp[3] += value;
-  tmp[7] += value;
-  Serial.write(tmp, 8);
-  delay(100);
-}
-
-void enterFactoryMode() {
-  unsigned char tmp[8] = {0xff, 0x07, 0x03, 0x00, 0x00, 0x00, 0x00, 0x0a};
-  Serial.write(tmp, 8);
-  delay(100);
-}
-
-void factoryModeExit(bool save) {
-  unsigned char tmp[8] = {0xff, 0x07, 0x01, 0x00, 0x00, 0x00, 0x00, 0x08};
-  Serial.write(tmp, 8);
-  delay(100);
-}
-
-void saveUserConfig() {
-  unsigned char tmp[8] = {0xff, 0x07, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x12};
-  Serial.write(tmp, 8);
-  delay(100);
-}
-
-void restoreDefaultConfig() {
-  unsigned char tmp[8] = {0xff, 0x07, 0x77, 0x00, 0x00, 0x00, 0x00, 0x7e};
-  Serial.write(tmp, 8);
-  delay(100);
-}
+void powerOnOff();
+void flipScreen(char value);
+void brightness(char value);
+void contrast(char value);
+void keystoneCorrectionHorizontal(char value);
+void keystoneCorrectionVertical(char value);
+void enterFactoryMode();
+void factoryModeExit(bool save);
+void saveUserConfig();
+void restoreDefaultConfig();
 
 void setup() {
   WiFi.begin (ssid, password);
@@ -181,4 +117,79 @@ void loop() {
       break;
     default: menuID = 1; break;  
   }
+}
+
+void powerOnOff() {
+  unsigned char tmp[8] = {0xff, 0x07, 0x99, 0x00, 0x00, 0x00, 0x00, 0xa0};
+  Serial.write(tmp, 8);
+  delay(100);
+}
+
+void flipScreen(char value) { //0:both 1:vertical 2:horizontal 3:normal
+  if(value > 4 || value < 0) return;
+  unsigned char tmp[8] = {0xff, 0x07, 0x37, 0x00, 0x00, 0x00, 0x00, 0x3e};
+  tmp[3] += value;
+  tmp[7] += value;
+  Serial.write(tmp, 8);
+  delay(100);
+}
+
+void brightness(char value) { //-31 ~ 10
+  if(value > 10 || value < -31) return;
+  unsigned char tmp[8] = {0xff, 0x07, 0x29, 0x00, 0x00, 0x00, 0x00, 0x30};
+  tmp[3] += value;
+  tmp[7] += value;
+  Serial.write(tmp, 8);
+  delay(100);
+}
+
+void contrast(char value) {
+  if(value > 15 || value < -15) return;
+  unsigned char tmp[8] = {0xff, 0x07, 0x2b, 0x00, 0x00, 0x00, 0x00, 0x32};
+  tmp[3] += value;
+  tmp[7] += value;
+  Serial.write(tmp, 8);
+  delay(100);
+}
+
+void keystoneCorrectionHorizontal(char value) {
+  if(value > 30 || value < -30) return;
+  unsigned char tmp[8] = {0xff, 0x07, 0x33, 0x00, 0x00, 0x00, 0x00, 0x3a};
+  tmp[3] += value;
+  tmp[7] += value;
+  Serial.write(tmp, 8);
+  delay(100);
+}
+
+void keystoneCorrectionVertical(char value) {
+  if(value > 30 || value < -15) return;
+  unsigned char tmp[8] = {0xff, 0x07, 0x35, 0x00, 0x00, 0x00, 0x00, 0x3c};
+  tmp[3] += value;
+  tmp[7] += value;
+  Serial.write(tmp, 8);
+  delay(100);
+}
+
+void enterFactoryMode() {
+  unsigned char tmp[8] = {0xff, 0x07, 0x03, 0x00, 0x00, 0x00, 0x00, 0x0a};
+  Serial.write(tmp, 8);
+  delay(100);
+}
+
+void factoryModeExit(bool save) {
+  unsigned char tmp[8] = {0xff, 0x07, 0x01, 0x00, 0x00, 0x00, 0x00, 0x08};
+  Serial.write(tmp, 8);
+  delay(100);
+}
+
+void saveUserConfig() {
+  unsigned char tmp[8] = {0xff, 0x07, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x12};
+  Serial.write(tmp, 8);
+  delay(100);
+}
+
+void restoreDefaultConfig() {
+  unsigned char tmp[8] = {0xff, 0x07, 0x77, 0x00, 0x00, 0x00, 0x00, 0x7e};
+  Serial.write(tmp, 8);
+  delay(100);
 }

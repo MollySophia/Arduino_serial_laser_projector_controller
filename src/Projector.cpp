@@ -295,6 +295,53 @@ void actionHandle() {
         if(listID - listStr >= 3) listStr++;
         if(listID - listStr < 0) listStr = listID;
       }
+      break;
+    
+    case 4: //brightness
+      display.clearDisplay();
+      tmp_val = brightnessVal;
+      keyState = 0;
+      while(keyState == 0) {
+        if(rotatorDiff - rotatorDiffLast > 0) tmp_val++;
+        if(rotatorDiff - rotatorDiffLast < 0) tmp_val--;
+        rotatorDiffLast = rotatorDiff;
+        if(tmp_val > 10) tmp_val = 10;
+        if(tmp_val < -31) tmp_val = -31;
+        sprintf(tmp_string, "- %i +", tmp_val);
+        display.clearDisplay();
+        drawCenterString(tmp_string, 64, 32);
+        display.display();
+        brightnessVal = tmp_val;
+        brightness(brightnessVal);
+        delay(200);
+      }
+      listID = 0;
+      listStr = 0;
+      menuID = 1;
+      break;
+
+    case 5: //contrast
+      display.clearDisplay();
+      tmp_val = contrastVal;
+      keyState = 0;
+      while(keyState == 0) {
+        if(rotatorDiff - rotatorDiffLast > 0) tmp_val++;
+        if(rotatorDiff - rotatorDiffLast < 0) tmp_val--;
+        rotatorDiffLast = rotatorDiff;
+        if(tmp_val > 15) tmp_val = 15;
+        if(tmp_val < -15) tmp_val = -15;
+        sprintf(tmp_string, "- %i +", tmp_val);
+        display.clearDisplay();
+        drawCenterString(tmp_string, 64, 32);
+        display.display();
+        contrastVal = tmp_val;
+        contrast(contrastVal);
+        delay(200);
+      }
+      listID = 0;
+      listStr = 0;
+      menuID = 1;
+      break;
 
     default:
       break;

@@ -5,6 +5,8 @@
 #include <ESP8266mDNS.h>
 #include <ArduinoOTA.h>
 
+#include <EEPROM.h>
+
 const char *ssid         = "Molly_2.4G";
 const char *password     = "qazwsx741";
 int pinA = 14;
@@ -28,14 +30,14 @@ int menuID = 0, listID = 0, listStr = 0;
 int keyState = 0;
 int curCLK, lastCLK;
 int rotatorDiff = 0, rotatorDiffLast = 0;
-int powerState = 0, keystoneVertical = 0, keystoneHorizontal = 0;
+char powerState = 0, keystoneVertical = 0, keystoneHorizontal = 0, brightnessVal = 0, contrastVal = 0, flipVal = 0;
 unsigned long ms = 0;
 
 
 IRAM_ATTR void keyISR() {
   ms = millis();
   while(digitalRead(pinSW) == LOW);
-  if(millis() - ms >= 400) keyState = 2;
+  if(millis() - ms >= 300) keyState = 2;
   else keyState = 1;
 }
 
@@ -89,9 +91,16 @@ void setup() {
   WiFi.begin (ssid, password);
 
   // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(10);
-  }
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(10);
+  // }
+
+  EEPROM.begin(5);
+  keystoneVertical = EEPROM.read(0);
+  keystoneHorizontal = EEPROM.read(1);
+  brightnessVal = EEPROM.read(2);
+  contrastVal = EEPROM.read(3); 
+  flipVal = EEPROM.read(4);
 
   display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
   display.clearDisplay();
@@ -147,7 +156,7 @@ void actionHandle() {
   char tmp_string[10];
 
   switch (menuID) {
-    case 0:
+    case 0: //power
       if(keyState == 1) {
         powerOnOff();
         display.clearDisplay();
@@ -164,6 +173,15 @@ void actionHandle() {
           display.display();
           delay(400);
         }
+        flipScreen(flipVal);
+        delay(50);
+        brightness(brightnessVal);
+        delay(50);
+        keystoneCorrectionVertical(keystoneVertical);
+        delay(50);
+        keystoneCorrectionHorizontal(keystoneHorizontal);
+        delay(50);
+        contrast(contrastVal);
       } else if(keyState == 2) {
         menuID = 1;
         keyState = 0;
@@ -217,6 +235,7 @@ void actionHandle() {
     case 2://flip settings
       if(keyState == 1) {
         flipScreen(listID);
+        flipVal = listID;
         delay(500);
         listStr = 0;
         listID = 0;
@@ -238,6 +257,9 @@ void actionHandle() {
       if(keyState == 1) {
         keyState = 0;
         display.clearDisplay();
+        if(listID == 0)  
+          tmp_val = keystoneVertical;
+        else tmp_val = keystoneHorizontal;
         while(keyState == 0) {
           if(rotatorDiff - rotatorDiffLast > 0) tmp_val++;
           if(rotatorDiff - rotatorDiffLast < 0) tmp_val--;
@@ -249,8 +271,14 @@ void actionHandle() {
           display.clearDisplay();
           drawCenterString(tmp_string, 64, 32);
           display.display();
-          if(listID == 0) keystoneCorrectionVertical(tmp_val);
-          else keystoneCorrectionHorizontal(tmp_val);
+          if(listID == 0)  {
+            keystoneCorrectionVertical(tmp_val);
+            keystoneVertical = tmp_val;
+          }
+          else {
+            keystoneCorrectionHorizontal(tmp_val);
+            keystoneHorizontal = tmp_val;
+          }
           delay(200);
         }
         listID = 0;
@@ -394,12 +422,29 @@ void saveUserConfig() {
   unsigned char tmp[8] = {0xff, 0x07, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x12};
   Serial.write(tmp, 8);
   delay(100);
+  EEPROM.write(0, keystoneVertical);
+  EEPROM.write(1, keystoneHorizontal);
+  EEPROM.write(2, brightnessVal);
+  EEPROM.write(3, contrastVal); 
+  EEPROM.write(4, flipVal);
+  EEPROM.commit();
 }
 
 void restoreDefaultConfig() {
   unsigned char tmp[8] = {0xff, 0x07, 0x77, 0x00, 0x00, 0x00, 0x00, 0x7e};
   Serial.write(tmp, 8);
   delay(100);
+  keystoneHorizontal = 0;
+  keystoneVertical = 0;
+  brightnessVal = 0;
+  contrastVal = 0;
+  flipVal = 0;
+  EEPROM.write(0, keystoneVertical);
+  EEPROM.write(1, keystoneHorizontal);
+  EEPROM.write(2, brightnessVal);
+  EEPROM.write(3, contrastVal); 
+  EEPROM.write(4, flipVal);
+  EEPROM.commit();
 }
 
 void drawProgressBar(int x, int y, int w, int h, int percentage) {
